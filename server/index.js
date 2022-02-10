@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const authRoutes = require('./routes/authRoutes')
+app.use(express.json()) // used to process incoming requests as json for posts
+app.use(authRoutes)
 const http = require('http');
 const mongoose = require('mongoose')
 const server = http.createServer(app);
