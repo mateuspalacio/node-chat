@@ -15,14 +15,19 @@ const Chat = () => {
     const [messages, setMessages] = useState([])
     useEffect(() => {
       socket = io(ENDPT)
-      socket.emit('join', {name: user.name, room_id, user_id: user.id})
+      socket.emit('join', {name: user.name, room_id, user_id: user._id})
     }, [])
     useEffect(() => {
       socket.on('message', message => {
         setMessages([...messages, message])
       })
     }, [messages])
-    
+    useEffect(() => {
+      socket.emit('get-messages-history', room_id)
+      socket.on('output-messages', messages => {
+          setMessages(messages)
+      })
+  }, [])
     const sendMessage = event => {
         event.preventDefault()
         if(message) {
@@ -34,7 +39,7 @@ const Chat = () => {
   return (
     <div className='outerContainer'>
       <div className='container'>
-        <Messages messages={messages} user_id={user.id}/>
+        <Messages messages={messages} user_id={user._id}/>
         <Input message={message}
         setMessage={setMessage}
         sendMessage={sendMessage}

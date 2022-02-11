@@ -1,8 +1,19 @@
 const express = require('express');
 const app = express();
+const cors = require('cors')
 const authRoutes = require('./routes/authRoutes')
+const cookieParser = require('cookie-parser')
+const corsOptions = {
+  origin:'http://localhost:3000',
+  credentials: true,
+  optionSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
 app.use(express.json()) // used to process incoming requests as json for posts
+app.use(cookieParser())
 app.use(authRoutes)
+
 const http = require('http');
 const mongoose = require('mongoose')
 const server = http.createServer(app);
@@ -16,12 +27,19 @@ const Message = require('./models/Message');
 const PORT = process.env.PORT || 5000
 const Room = require('./models/Room')
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
+app.get('/set-cookies', (req, res) => {
+  res.cookie('username', 'Tony')
+  res.cookie('isAuthenticated', true, {maxAge: 24 * 60 * 60 * 1000}) // 'httpOnly' hides from the user, 'secure' will work only on https
+  res.send('cookies set')
+})
+app.get('/get-cookies', (req, res) => {
+  const cookies = req.cookies
+  console.log(cookies)
+  res.json(cookies)
+})
 
 io.on('connection', (socket) => {
-  console.log(socket.id);
+  // console.log(socket.id);
   Room.find().then(result => {
       socket.emit('output-rooms', result)
   })
